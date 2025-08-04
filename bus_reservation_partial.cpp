@@ -63,6 +63,24 @@ public:
             cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
         }
     }
+
+    void cancelSeat() {
+        int seat_no;
+        cout << "Enter seat number to cancel (1-32): ";
+        cin >> seat_no;
+        if (seat_no < 1 || seat_no > 32) {
+            cout << "Invalid seat number!" << endl;
+            return;
+        }
+        int row = (seat_no - 1) / 4;
+        int col = (seat_no - 1) % 4;
+        if (seats[row][col] == "Empty") {
+            cout << "Seat is already empty!" << endl;
+        } else {
+            cout << "Reservation cancelled for Seat " << seat_no << "." << endl;
+            seats[row][col] = "Empty";
+        }
+    }
 };
 
 // Global buses list
@@ -103,7 +121,8 @@ int main() {
         cout << "1. Install New Bus" << endl;
         cout << "2. Show All Buses" << endl;
         cout << "3. Reserve a Seat" << endl;
-        cout << "4. Exit" << endl;
+        cout << "4. Cancel a Reservation" << endl;
+        cout << "5. Exit" << endl;
         cout << "Enter choice: ";
         cin >> choice;
 
@@ -123,11 +142,24 @@ int main() {
                     cout << "No buses to reserve.\n";
                 }
                 break;
-            case 4: cout << "Exiting...\n"; break;
+            case 4:
+                if (!buses.empty()) {
+                    int index;
+                    cout << "Enter bus index (1-" << buses.size() << "): ";
+                    cin >> index;
+                    if (index >= 1 && index <= buses.size())
+                        buses[index-1].cancelSeat();
+                    else
+                        cout << "Invalid bus index.\n";
+                } else {
+                    cout << "No buses to cancel reservation.\n";
+                }
+                break;
+            case 5: cout << "Exiting...\n"; break;
             default: cout << "Invalid choice!\n";
         }
 
-    } while (choice != 4);
+    } while (choice != 5);
 
     return 0;
 }
