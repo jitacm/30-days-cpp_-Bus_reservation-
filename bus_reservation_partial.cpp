@@ -57,8 +57,9 @@ public:
             cout << "Seat already booked!" << endl;
         } else {
             string name;
+            cin.ignore(); // flush newline before getline
             cout << "Enter passenger name: ";
-            cin >> name;
+            getline(cin, name);
             seats[row][col] = name;
             cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
         }
@@ -88,12 +89,20 @@ vector<Bus> buses;
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
-    cout << "Enter bus number: "; cin >> bno;
-    cout << "Enter driver name: "; cin >> drv;
-    cout << "Enter arrival time: "; cin >> arr;
-    cout << "Enter departure time: "; cin >> dep;
-    cout << "From: "; cin >> from;
-    cout << "To: "; cin >> to;
+    cin.ignore(); // flush buffer before getline
+
+    cout << "Enter bus number: ";
+    getline(cin, bno);
+    cout << "Enter driver name: ";
+    getline(cin, drv);
+    cout << "Enter arrival time: ";
+    getline(cin, arr);
+    cout << "Enter departure time: ";
+    getline(cin, dep);
+    cout << "From: ";
+    getline(cin, from);
+    cout << "To: ";
+    getline(cin, to);
 
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
@@ -113,11 +122,10 @@ void showAllBuses() {
     }
 }
 
-// Main menu (reservation search/cancel not yet implemented)
 int main() {
     int choice;
     do {
-        cout << "\n===== Bus Reservation System (Partial) =====" << endl;
+        cout << "\n===== Bus Reservation System =====" << endl;
         cout << "1. Install New Bus" << endl;
         cout << "2. Show All Buses" << endl;
         cout << "3. Reserve a Seat" << endl;
