@@ -3,11 +3,14 @@
 #include <string>
 using namespace std;
 
+// Minor edit to enable amend
+
+
 class Bus {
 public:
     string bus_no;
     string driver;
-    string arrival;
+    string arrival; 
     string departure;
     string from;
     string to;
@@ -42,6 +45,7 @@ public:
             cout << endl;
         }
     }
+// This function now supports multi-word input using getline()
 
     void reserveSeat() {
         int seat_no;
@@ -86,6 +90,8 @@ public:
 
 // Global buses list
 vector<Bus> buses;
+// cin.ignore() used to flush newline before getline()
+
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
