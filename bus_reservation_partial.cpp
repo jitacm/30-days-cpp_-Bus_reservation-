@@ -113,7 +113,61 @@ void showAllBuses() {
     }
 }
 
-// Main menu (reservation search/cancel not yet implemented)
+// Search buses by bus number, source, or destination
+void searchBuses() {
+    if (buses.empty()) {
+        cout << "No buses available to search.\n";
+        return;
+    }
+    cout << "\nSearch by:\n";
+    cout << "1. Bus Number\n2. Source\n3. Destination\nEnter option: ";
+    int opt;
+    cin >> opt;
+    string query;
+    bool found = false;
+    switch (opt) {
+        case 1:
+            cout << "Enter bus number: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i) {
+                if (buses[i].bus_no == query) {
+                    cout << "\nBus " << i+1 << ":\n";
+                    buses[i].showBusDetails();
+                    found = true;
+                }
+            }
+            break;
+        case 2:
+            cout << "Enter source: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i) {
+                if (buses[i].from == query) {
+                    cout << "\nBus " << i+1 << ":\n";
+                    buses[i].showBusDetails();
+                    found = true;
+                }
+            }
+            break;
+        case 3:
+            cout << "Enter destination: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i) {
+                if (buses[i].to == query) {
+                    cout << "\nBus " << i+1 << ":\n";
+                    buses[i].showBusDetails();
+                    found = true;
+                }
+            }
+            break;
+        default:
+            cout << "Invalid search option!\n";
+            return;
+    }
+    if (!found) {
+        cout << "No matching buses found.\n";
+    }
+}
+
 int main() {
     int choice;
     do {
@@ -122,7 +176,8 @@ int main() {
         cout << "2. Show All Buses" << endl;
         cout << "3. Reserve a Seat" << endl;
         cout << "4. Cancel a Reservation" << endl;
-        cout << "5. Exit" << endl;
+        cout << "5. Search for Buses" << endl;
+        cout << "6. Exit" << endl;
         cout << "Enter choice: ";
         cin >> choice;
 
@@ -155,11 +210,14 @@ int main() {
                     cout << "No buses to cancel reservation.\n";
                 }
                 break;
-            case 5: cout << "Exiting...\n"; break;
+            case 5:
+                searchBuses();
+                break;
+            case 6: cout << "Exiting...\n"; break;
             default: cout << "Invalid choice!\n";
         }
 
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
