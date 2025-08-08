@@ -1,10 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
-
-// Minor edit to enable amend
-
 
 class Bus {
 public:
@@ -16,6 +14,8 @@ public:
     string to;
     string seats[8][4]; // 32 seats
 
+    Bus() {} // Default constructor for loading from file
+
     Bus(string bno, string drv, string arr, string dep, string f, string t) {
         bus_no = bno;
         driver = drv;
@@ -24,7 +24,6 @@ public:
         from = f;
         to = t;
 
-        // initialize seats
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] = "Empty";
@@ -45,7 +44,6 @@ public:
             cout << endl;
         }
     }
-// This function now supports multi-word input using getline()
 
     void reserveSeat() {
         int seat_no;
@@ -61,7 +59,7 @@ public:
             cout << "Seat already booked!" << endl;
         } else {
             string name;
-            cin.ignore(); // flush newline before getline
+            cin.ignore();
             cout << "Enter passenger name: ";
             getline(cin, name);
             seats[row][col] = name;
@@ -88,14 +86,55 @@ public:
     }
 };
 
-// Global buses list
 vector<Bus> buses;
-// cin.ignore() used to flush newline before getline()
 
+// Save buses to file
+void saveData() {
+    ofstream file("buses.txt");
+    if (!file) return;
+
+    file << buses.size() << "\n";
+    for (auto &b : buses) {
+        file << b.bus_no << "\n" << b.driver << "\n" << b.arrival << "\n"
+             << b.departure << "\n" << b.from << "\n" << b.to << "\n";
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                file << b.seats[i][j] << "\n";
+    }
+    file.close();
+}
+
+// Load buses from file
+void loadData() {
+    ifstream file("buses.txt");
+    if (!file) return;
+
+    size_t size;
+    file >> size;
+    file.ignore();
+    buses.clear();
+
+    for (size_t k = 0; k < size; k++) {
+        Bus b;
+        getline(file, b.bus_no);
+        getline(file, b.driver);
+        getline(file, b.arrival);
+        getline(file, b.departure);
+        getline(file, b.from);
+        getline(file, b.to);
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                getline(file, b.seats[i][j]);
+
+        buses.push_back(b);
+    }
+    file.close();
+}
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
-    cin.ignore(); // flush buffer before getline
+    cin.ignore();
 
     cout << "Enter bus number: ";
     getline(cin, bno);
@@ -112,7 +151,7 @@ void installBus() {
 
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
-
+    saveData();
     cout << "✅ Bus Installed Successfully!\n";
 }
 
@@ -121,14 +160,12 @@ void showAllBuses() {
         cout << "No buses available.\n";
         return;
     }
-
     for (size_t i = 0; i < buses.size(); ++i) {
         cout << "\nBus " << i+1 << ":" << endl;
         buses[i].showBusDetails();
     }
 }
 
-// Search buses by bus number, source, or destination
 void searchBuses() {
     if (buses.empty()) {
         cout << "No buses available to search.\n";
@@ -184,6 +221,7 @@ void searchBuses() {
 }
 
 int main() {
+    loadData(); // Load existing data at start
     int choice;
     do {
         cout << "\n===== Bus Reservation System =====" << endl;
@@ -204,8 +242,10 @@ int main() {
                     int index;
                     cout << "Enter bus index (1-" << buses.size() << "): ";
                     cin >> index;
-                    if (index >= 1 && index <= buses.size())
+                    if (index >= 1 && index <= buses.size()) {
                         buses[index-1].reserveSeat();
+                        saveData();
+                    }
                     else
                         cout << "Invalid bus index.\n";
                 } else {
@@ -217,8 +257,10 @@ int main() {
                     int index;
                     cout << "Enter bus index (1-" << buses.size() << "): ";
                     cin >> index;
-                    if (index >= 1 && index <= buses.size())
+                    if (index >= 1 && index <= buses.size()) {
                         buses[index-1].cancelSeat();
+                        saveData();
+                    }
                     else
                         cout << "Invalid bus index.\n";
                 } else {
@@ -228,7 +270,10 @@ int main() {
             case 5:
                 searchBuses();
                 break;
-            case 6: cout << "Exiting...\n"; break;
+            case 6:
+                saveData();
+                cout << "Exiting...\n"; 
+                break;
             default: cout << "Invalid choice!\n";
         }
 
