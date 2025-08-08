@@ -14,7 +14,7 @@ public:
     string to;
     string seats[8][4]; // 32 seats
 
-    Bus() {} // Default constructor for loading from file
+    Bus() {}
 
     Bus(string bno, string drv, string arr, string dep, string f, string t) {
         bus_no = bno;
@@ -23,7 +23,6 @@ public:
         departure = dep;
         from = f;
         to = t;
-
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] = "Empty";
@@ -122,11 +121,9 @@ void loadData() {
         getline(file, b.departure);
         getline(file, b.from);
         getline(file, b.to);
-
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 getline(file, b.seats[i][j]);
-
         buses.push_back(b);
     }
     file.close();
@@ -135,7 +132,6 @@ void loadData() {
 void installBus() {
     string bno, drv, arr, dep, from, to;
     cin.ignore();
-
     cout << "Enter bus number: ";
     getline(cin, bno);
     cout << "Enter driver name: ";
@@ -148,7 +144,6 @@ void installBus() {
     getline(cin, from);
     cout << "To: ";
     getline(cin, to);
-
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
     saveData();
@@ -221,7 +216,7 @@ void searchBuses() {
 }
 
 int main() {
-    loadData(); // Load existing data at start
+    loadData();
     int choice;
     do {
         cout << "\n===== Bus Reservation System =====" << endl;
@@ -245,8 +240,7 @@ int main() {
                     if (index >= 1 && index <= buses.size()) {
                         buses[index-1].reserveSeat();
                         saveData();
-                    }
-                    else
+                    } else
                         cout << "Invalid bus index.\n";
                 } else {
                     cout << "No buses to reserve.\n";
@@ -260,8 +254,7 @@ int main() {
                     if (index >= 1 && index <= buses.size()) {
                         buses[index-1].cancelSeat();
                         saveData();
-                    }
-                    else
+                    } else
                         cout << "Invalid bus index.\n";
                 } else {
                     cout << "No buses to cancel reservation.\n";
