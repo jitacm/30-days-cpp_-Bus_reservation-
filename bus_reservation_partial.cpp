@@ -1,6 +1,17 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+
+bool fileExists(const std::string& filename) {
+    std::ifstream file(filename);
+    return file.good();
+}
+
+// Forward declarations
+void saveToFile();
+void loadFromFile();
+
 using namespace std;
 
 // Minor edit to enable amend
@@ -66,6 +77,8 @@ public:
             getline(cin, name);
             seats[row][col] = name;
             cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
+            saveToFile();
+
         }
     }
 
@@ -84,13 +97,22 @@ public:
         } else {
             cout << "Reservation cancelled for Seat " << seat_no << "." << endl;
             seats[row][col] = "Empty";
+            saveToFile();
+
         }
     }
+
+ 
+
+
+
+
 };
 
 // Global buses list
 vector<Bus> buses;
 // cin.ignore() used to flush newline before getline()
+
 
 
 void installBus() {
@@ -112,9 +134,57 @@ void installBus() {
 
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
+    saveToFile();
+
 
     cout << "✅ Bus Installed Successfully!\n";
 }
+
+void saveToFile() {
+    ofstream fout("buses.txt");
+    for (const auto& bus : buses) {
+        fout << bus.bus_no << "|" << bus.driver << "|" << bus.arrival << "|" << bus.departure << "|"
+             << bus.from << "|" << bus.to << "\n";
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                fout << bus.seats[i][j] << "\n";
+    }
+    fout.close();
+}
+
+void loadFromFile() {
+    if (!fileExists("buses.txt")) {
+        return; // No file yet, so nothing to load
+    }
+
+    ifstream fin("buses.txt");
+    if (!fin.is_open()) return;
+
+    buses.clear();
+
+    string bno, drv, arr, dep, from, to;
+    while (getline(fin, bno, '|')) {
+        getline(fin, drv, '|');
+        getline(fin, arr, '|');
+        getline(fin, dep, '|');
+        getline(fin, from, '|');
+        getline(fin, to);
+
+        Bus b(bno, drv, arr, dep, from, to);
+
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                getline(fin, b.seats[i][j]);
+
+        buses.push_back(b);
+    }
+
+    fin.close();
+}
+
+
+
 
 void showAllBuses() {
     if (buses.empty()) {
@@ -125,6 +195,7 @@ void showAllBuses() {
     for (size_t i = 0; i < buses.size(); ++i) {
         cout << "\nBus " << i+1 << ":" << endl;
         buses[i].showBusDetails();
+        buses[i].showSeats(); // <-- Now shows seat arrangement too
     }
 }
 
@@ -184,6 +255,7 @@ void searchBuses() {
 }
 
 int main() {
+    loadFromFile(); // Load data when app starts
     int choice;
     do {
         cout << "\n===== Bus Reservation System =====" << endl;
@@ -197,7 +269,9 @@ int main() {
         cin >> choice;
 
         switch (choice) {
-            case 1: installBus(); break;
+            case 1: installBus(); 
+            
+                break;
             case 2: showAllBuses(); break;
             case 3:
                 if (!buses.empty()) {
