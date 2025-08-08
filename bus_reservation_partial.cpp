@@ -3,9 +3,6 @@
 #include <string>
 using namespace std;
 
-// Minor edit to enable amend
-
-
 class Bus {
 public:
     string bus_no;
@@ -33,6 +30,7 @@ public:
     void showBusDetails() {
         cout << "Bus No: " << bus_no << "\nDriver: " << driver << "\nFrom: " << from << "\nTo: " << to;
         cout << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
+        seatSummary(); // 👈 Shows booked/empty/total seats
     }
 
     void showSeats() {
@@ -45,7 +43,6 @@ public:
             cout << endl;
         }
     }
-// This function now supports multi-word input using getline()
 
     void reserveSeat() {
         int seat_no;
@@ -61,7 +58,7 @@ public:
             cout << "Seat already booked!" << endl;
         } else {
             string name;
-            cin.ignore(); // flush newline before getline
+            cin.ignore();
             cout << "Enter passenger name: ";
             getline(cin, name);
             seats[row][col] = name;
@@ -86,16 +83,27 @@ public:
             seats[row][col] = "Empty";
         }
     }
+
+    // ✅ Add seat summary function here
+    void seatSummary() {
+        int booked = 0;
+        for (int i = 0; i < 8; ++i)
+            for (int j = 0; j < 4; ++j)
+                if (seats[i][j] != "Empty") booked++;
+        int total = 32;
+        cout << "\nSeat Summary:\n";
+        cout << "Total Seats: " << total << "\n";
+        cout << "Booked Seats: " << booked << "\n";
+        cout << "Empty Seats: " << total - booked << "\n";
+    }
 };
 
 // Global buses list
 vector<Bus> buses;
-// cin.ignore() used to flush newline before getline()
-
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
-    cin.ignore(); // flush buffer before getline
+    cin.ignore();
 
     cout << "Enter bus number: ";
     getline(cin, bno);
@@ -128,7 +136,6 @@ void showAllBuses() {
     }
 }
 
-// Search buses by bus number, source, or destination
 void searchBuses() {
     if (buses.empty()) {
         cout << "No buses available to search.\n";
