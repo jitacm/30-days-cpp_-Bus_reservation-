@@ -26,11 +26,56 @@ public:
                 seats[i][j] = "Empty";
     }
 
-    void showBusDetails() {
-        cout << "Bus No: " << bus_no << "\nDriver: " << driver 
-             << "\nFrom: " << from << "\nTo: " << to
-             << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
+void showBusDetails() {
+    cout << "Bus No: " << bus_no
+         << "\nDriver: " << driver
+         << "\nFrom: " << from
+         << "\nTo: " << to;
+    cout << "\nArrival: " << arrival
+         << "\nDeparture: " << departure;
+
+    // --- Available Seats Count ---
+    int available = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (seats[i][j] == "Empty")
+                available++;
+        }
     }
+    cout << "\nAvailable Seats: " << available << endl;
+
+    // --- Reserved Seats List ---
+    cout << "Reserved Seats: ";
+    bool anyReserved = false;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (seats[i][j] != "Empty") {
+                int seatNum = i * 4 + j + 1;
+                cout << seatNum << " ";
+                anyReserved = true;
+            }
+        }
+    }
+    if (!anyReserved) cout << "None";
+    cout << endl;
+
+    // --- Empty Seats List ---
+    cout << "Empty Seats: ";
+    bool anyEmpty = false;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (seats[i][j] == "Empty") {
+                int seatNum = i * 4 + j + 1;
+                cout << seatNum << " ";
+                anyEmpty = true;
+            }
+        }
+    }
+    if (!anyEmpty) cout << "None";
+    cout << endl;
+}
+
+
 
     void showSeats() {
         cout << "\nSeat Arrangement for Bus No " << bus_no << ":\n";
@@ -45,6 +90,18 @@ public:
             cout << endl;
         }
     }
+
+    int getAvailableSeatCount() {
+    int count = 0;
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            if (seats[i][j] == "Empty")
+                count++;
+        }
+    }
+    return count;
+}
+
 
     void reserveSeat() {
         int seat_no;
