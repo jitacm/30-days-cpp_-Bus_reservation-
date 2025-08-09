@@ -1,75 +1,59 @@
-# 🚍 Bus Reservation System
+# 🚌 Bus Reservation System (C++)
 
-A simple **C++ console application** to manage bus reservations.  
-This project demonstrates **OOP**, **vectors**, and **console I/O** in C++.
+## 📌 Overview
+This is a **menu-driven C++ Bus Reservation System** that allows users to install buses, reserve seats, cancel tickets, and view seat arrangements.  
+The system has been upgraded with:
+- **Seat Map View** – Shows available seats by number and booked seats as `X`.
+- **Booking ID Generation** – Creates a unique ID for every reservation.
+- **Cancel Ticket by Booking ID** – Cancel seats securely using a booking ID.
 
----
-
-## 📑 Features
-
-- **Install a new bus** — add bus number, driver, routes, and timings.
-- **View all buses** — display details of all installed buses.
-- **Reserve seats** — book any available seat (1–32) on a selected bus.
-- **Visual seat arrangement** — see which seats are booked or empty.
-- **Search for buses** — find buses by bus number, source, or destination for quick access.
+It’s fully interactive, making it simple for passengers and admins to manage reservations in real time.
 
 ---
 
-## ⚙️ How to Build & Run
+## ✨ Features
+1. **Install Bus** – Add bus details like bus number, driver name, arrival & departure time, and route.
+2. **Show All Buses** – View details of all installed buses.
+3. **Reserve Seat** – Book a seat, store passenger name, and generate a unique booking ID.
+4. **Cancel Ticket (Booking ID)** – Cancel a reserved seat using its booking ID.
+5. **Show Seat Map** – Display available seats and booked seats visually.
+6. **Menu-Driven Interface** – Easy to navigate with numbered options.
 
-1. **Clone the repository**
+---
+
+## 📂 File Structure
+├── bus_reservation.cpp # Main C++ source code
+├── README.md # Project documentation
+
+
+---
+
+## 🛠️ How to Run
+1. **Compile the program**
    ```bash
-   git clone https://github.com/<your-username>/<repo-name>.git
-   cd <repo-name>
-Compile
----------
+   g++ bus_reservation.cpp -o bus_reservation
+2.**  Run the program**
+
+./bus_reservation
 
 
-Copy code
-g++ bus.cpp -o bus
-Run
+💻 **Example Usage**
 
-
-Copy code
-./bus
-
-
-🗂️ Usage
-Install a Bus
-Input bus details: number, driver name, arrival & departure, source, and destination.
-
-
-
-Show All Buses
-Displays all buses with their details.
-
-Search for Buses
-Find buses by entering a bus number, source, or destination. Helps you quickly locate relevant buses.
-
-
-Reserve a Seat
-Select a bus and choose an available seat.
-
-
-Exit
-Quit the program.
-
-✅ Example
-plaintext
-Copy code
-===== Bus Reservation System =====
-1. Install New Bus
+===== Bus Reservation Menu =====
+1. Install Bus
 2. Show All Buses
-3. Reserve a Seat
-4. Cancel a Reservation
-5. Search for Buses
+3. Reserve Seat
+4. Cancel Ticket (Booking ID)
+5. Show Seat Map
 6. Exit
-Enter choice:
+Enter choice: 1
+Enter bus number: MH12AB1234
+Enter driver name: John
+Enter arrival time: 08:00
+Enter departure time: 14:00
+From: Pune
+To: Mumbai
+✅ Bus Installed Successfully!
 
-🚀 Improvements
-- Cancel or modify a reservation.
-- Search for passengers by name.
-- Save and load buses and reservations to/from files.
 
-📄 License
-This project is licensed under the MIT License — feel free to use and modify it.
+
