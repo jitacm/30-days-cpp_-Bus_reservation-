@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 using namespace std;
 
 class Bus {
@@ -12,6 +13,8 @@ public:
     string from;
     string to;
     string seats[8][4];
+
+    Bus() {}
 
     Bus(string bno, string drv, string arr, string dep, string f, string t) {
         bus_no = bno;
@@ -60,7 +63,7 @@ public:
             cout << "❌ Seat already booked!" << endl;
         } else {
             string name;
-            cin.ignore(); 
+            cin.ignore();
             cout << "Enter passenger name: ";
             getline(cin, name);
             seats[row][col] = name;
@@ -116,6 +119,48 @@ public:
 
 vector<Bus> buses;
 
+// Save buses to file
+void saveData() {
+    ofstream file("buses.txt");
+    if (!file) return;
+
+    file << buses.size() << "\n";
+    for (auto &b : buses) {
+        file << b.bus_no << "\n" << b.driver << "\n" << b.arrival << "\n"
+             << b.departure << "\n" << b.from << "\n" << b.to << "\n";
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                file << b.seats[i][j] << "\n";
+    }
+    file.close();
+}
+
+// Load buses from file
+void loadData() {
+    ifstream file("buses.txt");
+    if (!file) return;
+
+    size_t size;
+    file >> size;
+    file.ignore();
+    buses.clear();
+
+    for (size_t k = 0; k < size; k++) {
+        Bus b;
+        getline(file, b.bus_no);
+        getline(file, b.driver);
+        getline(file, b.arrival);
+        getline(file, b.departure);
+        getline(file, b.from);
+        getline(file, b.to);
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                getline(file, b.seats[i][j]);
+        buses.push_back(b);
+    }
+    file.close();
+}
+
 void installBus() {
     string bno, drv, arr, dep, from, to;
     cin.ignore();
@@ -131,10 +176,9 @@ void installBus() {
     getline(cin, from);
     cout << "To: ";
     getline(cin, to);
-
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
-
+    saveData();
     cout << "✅ Bus Installed Successfully!\n";
 }
 
@@ -193,6 +237,7 @@ void searchBuses() {
 }
 
 int main() {
+    loadData();
     int choice;
     do {
         cout << "\n===== 🚍 Bus Reservation System =====" << endl;
@@ -221,8 +266,8 @@ int main() {
                 continue;
             }
             switch (choice) {
-                case 3: buses[index - 1].reserveSeat(); break;
-                case 4: buses[index - 1].cancelReservation(); break;
+                case 3: buses[index - 1].reserveSeat(); saveData(); break;
+                case 4: buses[index - 1].cancelReservation(); saveData(); break;
                 case 5: buses[index - 1].searchPassenger(); break;
                 case 6: buses[index - 1].showSeats(); break;
                 case 7: buses[index - 1].showSummary(); break;
@@ -231,7 +276,7 @@ int main() {
         else if (choice == 1) installBus();
         else if (choice == 2) showAllBuses();
         else if (choice == 8) searchBuses();
-        else if (choice == 9) cout << "Exiting...\n";
+        else if (choice == 9) { saveData(); cout << "Exiting...\n"; }
         else cout << "Invalid choice!\n";
 
     } while (choice != 9);
