@@ -5,7 +5,7 @@
 using namespace std;
 
 class Bus {
-public:
+    public:
     string bus_no;
     string driver;
     string arrival;
@@ -30,8 +30,10 @@ public:
     }
 
     void showBusDetails() {
-        cout << "Bus No: " << bus_no << "\nDriver: " << driver << "\nFrom: " << from << "\nTo: " << to;
-        cout << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
+        cout << "\nBus Number: " << bus_no << endl;
+        cout << "Driver: " << driver << endl;
+        cout << "From: " << from << "  To: " << to << endl;
+        cout << "Arrival: " << arrival << "  Departure: " << departure << endl;
     }
 
     void showSeats() {
@@ -100,9 +102,9 @@ public:
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
         if (seats[row][col] == "Empty") {
-            cout << "Seat is already empty!" << endl;
+            cout << "That seat is already empty." << endl;
         } else {
-            cout << "Reservation cancelled for Seat " << seat_no << "." << endl;
+            cout << "Reservation for seat " << seat_no << " (" << seats[row][col] << ") cancelled." << endl;
             seats[row][col] = "Empty";
         }
     }
@@ -127,6 +129,7 @@ public:
     }
 };
 
+// Global buses list
 vector<Bus> buses;
 
 void saveAllBuses() {
@@ -247,7 +250,6 @@ int main() {
             default:
                 cout << "Invalid choice!\n";
         }
-
     } while (choice != 8);
 
     return 0;

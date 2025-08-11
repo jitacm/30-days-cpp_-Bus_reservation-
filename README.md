@@ -5,6 +5,13 @@ This project demonstrates **OOP**, **vectors**, **file I/O**, and **console inte
 
 ---
 
+# 🚍 Bus Reservation System
+
+A simple **C++ console application** to manage bus reservations.  
+This project demonstrates **OOP**, **vectors**, **file I/O**, and **console interaction** in C++.
+
+---
+
 ## 📁 Features
 
 - **Install a new bus** — Add bus number, driver, routes, and timings.
@@ -24,6 +31,13 @@ This project demonstrates **OOP**, **vectors**, **file I/O**, and **console inte
    ```bash
    git clone https://github.com/<your-username>/30-days-cpp_-Bus_reservation-.git
    cd 30-days-cpp_-Bus_reservation-
+
+## ⚙️ How to Build & Run
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/<your-username>/30-days-cpp_-Bus_reservation-.git
+   cd 30-days-cpp_-Bus_reservation-
    ```
 
 2. **Compile**
@@ -36,7 +50,6 @@ This project demonstrates **OOP**, **vectors**, **file I/O**, and **console inte
    ./bus
    ```
 
----
 
 ## 🗂️ Usage
 
@@ -81,5 +94,6 @@ Enter choice:
 ```
 
 ---
+
 ## 📄 License
 This project is licensed under the MIT License — feel free to use and modify it.
