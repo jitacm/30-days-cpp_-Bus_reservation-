@@ -143,7 +143,7 @@ void showAllBuses() {
 int main() {
     int choice;
     do {
-        cout << "\n===== 🚍 Bus Reservation System (Improved) =====" << endl;
+        cout << "\n===== 🚍 Bus Reservation System =====" << endl;
         cout << "1. Install New Bus" << endl;
         cout << "2. Show All Buses" << endl;
         cout << "3. Reserve a Seat" << endl;
