@@ -5,7 +5,7 @@
 using namespace std;
 
 class Bus {
-    public:
+public:
     string bus_no;
     string driver;
     string arrival;
@@ -110,7 +110,8 @@ class Bus {
     }
 
     void saveToFile(ofstream &out) {
-        out << bus_no << '\n' << driver << '\n' << arrival << '\n' << departure << '\n' << from << '\n' << to << '\n';
+        out << bus_no << '\n' << driver << '\n' << arrival << '\n'
+            << departure << '\n' << from << '\n' << to << '\n';
         for (int i = 0; i < 8; ++i)
             for (int j = 0; j < 4; ++j)
                 out << seats[i][j] << '\n';
@@ -129,7 +130,6 @@ class Bus {
     }
 };
 
-// Global buses list
 vector<Bus> buses;
 
 void saveAllBuses() {
@@ -146,6 +146,7 @@ void loadAllBuses() {
     int n;
     in >> n;
     in.ignore();
+    buses.clear();
     for (int i = 0; i < n; ++i) {
         Bus b;
         b.loadFromFile(in);
