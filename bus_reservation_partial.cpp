@@ -8,11 +8,11 @@ class Bus {
 public:
     string bus_no;
     string driver;
-    string arrival; 
+    string arrival;
     string departure;
     string from;
     string to;
-    string seats[8][4];
+    string seats[8][4]; // 32 seats
 
     Bus() {}
 
@@ -30,23 +30,39 @@ public:
     }
 
     void showBusDetails() {
-        cout << "Bus No: " << bus_no << "\nDriver: " << driver 
-             << "\nFrom: " << from << "\nTo: " << to
-             << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
+        cout << "\nBus Number: " << bus_no << endl;
+        cout << "Driver: " << driver << endl;
+        cout << "From: " << from << "  To: " << to << endl;
+        cout << "Arrival: " << arrival << "  Departure: " << departure << endl;
     }
 
     void showSeats() {
-        cout << "\nSeat Arrangement for Bus No " << bus_no << ":\n";
+        cout << "\nSeat Arrangement for Bus No " << bus_no << ":" << endl;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
-                int seat_no = i * 4 + j + 1;
+                int seat_num = i * 4 + j + 1;
                 cout.width(4);
-                cout << seat_no << ": ";
-                cout.width(10);
-                cout << seats[i][j] << "  ";
+                cout << "[" << seat_num << "]";
+                cout.width(12);
+                cout << seats[i][j];
             }
             cout << endl;
         }
+    }
+
+    void listReservedSeats() {
+        cout << "\nReserved Seats in Bus " << bus_no << ":\n";
+        bool found = false;
+        for (int i = 0; i < 8; ++i) {
+            for (int j = 0; j < 4; ++j) {
+                if (seats[i][j] != "Empty") {
+                    int seat_num = i * 4 + j + 1;
+                    cout << "Seat " << seat_num << ": " << seats[i][j] << endl;
+                    found = true;
+                }
+            }
+        }
+        if (!found) cout << "No seats reserved.\n";
     }
 
     void reserveSeat() {
@@ -54,232 +70,188 @@ public:
         cout << "Enter seat number (1-32): ";
         cin >> seat_no;
         if (seat_no < 1 || seat_no > 32) {
-            cout << "❌ Invalid seat number!" << endl;
+            cout << "Invalid seat number!" << endl;
             return;
         }
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
         if (seats[row][col] != "Empty") {
-            cout << "❌ Seat already booked!" << endl;
+            cout << "Seat already booked!" << endl;
         } else {
             string name;
             cin.ignore();
             cout << "Enter passenger name: ";
             getline(cin, name);
+            if (name.empty()) {
+                cout << "Invalid name." << endl;
+                return;
+            }
             seats[row][col] = name;
-            cout << "✅ Seat " << seat_no << " reserved for " << name << "." << endl;
+            cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
         }
     }
 
-    void cancelReservation() {
+    void cancelSeat() {
         int seat_no;
-        cout << "Enter seat number to cancel (1–32): ";
+        cout << "Enter seat number to cancel (1-32): ";
         cin >> seat_no;
         if (seat_no < 1 || seat_no > 32) {
-            cout << "❌ Invalid seat number!" << endl;
+            cout << "Invalid seat number!" << endl;
             return;
         }
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
         if (seats[row][col] == "Empty") {
-            cout << "❌ Seat is already empty." << endl;
+            cout << "That seat is already empty." << endl;
         } else {
-            cout << "✔️ Reservation for " << seats[row][col] << " at seat " << seat_no << " canceled.\n";
+            cout << "Reservation for seat " << seat_no << " (" << seats[row][col] << ") cancelled." << endl;
             seats[row][col] = "Empty";
         }
     }
 
-    void searchPassenger() {
-        string name;
-        cout << "Enter passenger name to search: ";
-        cin.ignore();
-        getline(cin, name);
-        bool found = false;
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 4; j++) {
-                if (seats[i][j] == name) {
-                    int seat_no = i * 4 + j + 1;
-                    cout << "✅ Passenger " << name << " is in seat " << seat_no << " on bus " << bus_no << ".\n";
-                    found = true;
-                }
-            }
-        }
-        if (!found)
-            cout << "❌ Passenger not found.\n";
+    void saveToFile(ofstream &out) {
+        out << bus_no << '\n' << driver << '\n' << arrival << '\n'
+            << departure << '\n' << from << '\n' << to << '\n';
+        for (int i = 0; i < 8; ++i)
+            for (int j = 0; j < 4; ++j)
+                out << seats[i][j] << '\n';
     }
 
-    void showSummary() {
-        int empty = 0, booked = 0;
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 4; j++)
-                seats[i][j] == "Empty" ? empty++ : booked++;
-        cout << "📊 Total Booked: " << booked << ", Empty: " << empty << endl;
+    void loadFromFile(ifstream &in) {
+        getline(in, bus_no);
+        getline(in, driver);
+        getline(in, arrival);
+        getline(in, departure);
+        getline(in, from);
+        getline(in, to);
+        for (int i = 0; i < 8; ++i)
+            for (int j = 0; j < 4; ++j)
+                getline(in, seats[i][j]);
     }
 };
 
 vector<Bus> buses;
 
-// Save buses to file
-void saveData() {
-    ofstream file("buses.txt");
-    if (!file) return;
-
-    file << buses.size() << "\n";
-    for (auto &b : buses) {
-        file << b.bus_no << "\n" << b.driver << "\n" << b.arrival << "\n"
-             << b.departure << "\n" << b.from << "\n" << b.to << "\n";
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 4; j++)
-                file << b.seats[i][j] << "\n";
-    }
-    file.close();
+void saveAllBuses() {
+    ofstream out("buses.txt");
+    out << buses.size() << '\n';
+    for (auto &bus : buses)
+        bus.saveToFile(out);
+    out.close();
 }
 
-// Load buses from file
-void loadData() {
-    ifstream file("buses.txt");
-    if (!file) return;
-
-    size_t size;
-    file >> size;
-    file.ignore();
+void loadAllBuses() {
+    ifstream in("buses.txt");
+    if (!in) return;
+    int n;
+    in >> n;
+    in.ignore();
     buses.clear();
-
-    for (size_t k = 0; k < size; k++) {
+    for (int i = 0; i < n; ++i) {
         Bus b;
-        getline(file, b.bus_no);
-        getline(file, b.driver);
-        getline(file, b.arrival);
-        getline(file, b.departure);
-        getline(file, b.from);
-        getline(file, b.to);
-        for (int i = 0; i < 8; i++)
-            for (int j = 0; j < 4; j++)
-                getline(file, b.seats[i][j]);
+        b.loadFromFile(in);
         buses.push_back(b);
     }
-    file.close();
+    in.close();
+}
+
+Bus* findBusByNumber(const string& number) {
+    for (auto& bus : buses) {
+        if (bus.bus_no == number)
+            return &bus;
+    }
+    return nullptr;
 }
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
     cin.ignore();
-    cout << "Enter bus number: ";
+    cout << "\nEnter bus number: ";
     getline(cin, bno);
-    cout << "Enter driver name: ";
-    getline(cin, drv);
-    cout << "Enter arrival time: ";
-    getline(cin, arr);
-    cout << "Enter departure time: ";
-    getline(cin, dep);
-    cout << "From: ";
-    getline(cin, from);
-    cout << "To: ";
-    getline(cin, to);
+    if (findBusByNumber(bno)) {
+        cout << "❌ Bus with this number already exists!\n";
+        return;
+    }
+    cout << "Enter driver name: "; getline(cin, drv);
+    cout << "Enter arrival time: "; getline(cin, arr);
+    cout << "Enter departure time: "; getline(cin, dep);
+    cout << "From: "; getline(cin, from);
+    cout << "To: "; getline(cin, to);
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
-    saveData();
     cout << "✅ Bus Installed Successfully!\n";
-}
-
-void showAllBuses() {
-    if (buses.empty()) {
-        cout << "No buses available.\n";
-        return;
-    }
-    for (size_t i = 0; i < buses.size(); ++i) {
-        cout << "\nBus " << i + 1 << ":" << endl;
-        buses[i].showBusDetails();
-    }
-}
-
-void searchBuses() {
-    if (buses.empty()) {
-        cout << "No buses available to search.\n";
-        return;
-    }
-    cout << "\nSearch by:\n";
-    cout << "1. Bus Number\n2. Source\n3. Destination\nEnter option: ";
-    int opt;
-    cin >> opt;
-    string query;
-    bool found = false;
-    cin.ignore();
-    switch (opt) {
-        case 1:
-            cout << "Enter bus number: ";
-            getline(cin, query);
-            break;
-        case 2:
-            cout << "Enter source: ";
-            getline(cin, query);
-            break;
-        case 3:
-            cout << "Enter destination: ";
-            getline(cin, query);
-            break;
-        default:
-            cout << "Invalid search option!\n";
-            return;
-    }
-    for (size_t i = 0; i < buses.size(); ++i) {
-        if ((opt == 1 && buses[i].bus_no == query) ||
-            (opt == 2 && buses[i].from == query) ||
-            (opt == 3 && buses[i].to == query)) {
-            cout << "\nBus " << i+1 << ":\n";
-            buses[i].showBusDetails();
-            found = true;
-        }
-    }
-    if (!found) {
-        cout << "No matching buses found.\n";
-    }
+    saveAllBuses();
 }
 
 int main() {
-    loadData();
+    loadAllBuses();
     int choice;
     do {
-        cout << "\n===== 🚍 Bus Reservation System =====" << endl;
+        cout << "\n===== Bus Reservation System =====" << endl;
         cout << "1. Install New Bus" << endl;
         cout << "2. Show All Buses" << endl;
         cout << "3. Reserve a Seat" << endl;
         cout << "4. Cancel a Reservation" << endl;
-        cout << "5. Search for Passenger" << endl;
-        cout << "6. Show Seat Arrangement" << endl;
-        cout << "7. Show Booking Summary" << endl;
-        cout << "8. Search for Buses" << endl;
-        cout << "9. Exit" << endl;
+        cout << "5. Search Bus by Number" << endl;
+        cout << "6. View Seat Arrangement" << endl;
+        cout << "7. List Reserved Seats" << endl;
+        cout << "8. Exit" << endl;
         cout << "Enter choice: ";
         cin >> choice;
 
-        if (choice >= 3 && choice <= 7) {
-            if (buses.empty()) {
-                cout << "No buses available.\n";
-                continue;
-            }
-            int index;
-            cout << "Enter bus index (1-" << buses.size() << "): ";
-            cin >> index;
-            if (index < 1 || index > buses.size()) {
-                cout << "Invalid bus index.\n";
-                continue;
-            }
-            switch (choice) {
-                case 3: buses[index - 1].reserveSeat(); saveData(); break;
-                case 4: buses[index - 1].cancelReservation(); saveData(); break;
-                case 5: buses[index - 1].searchPassenger(); break;
-                case 6: buses[index - 1].showSeats(); break;
-                case 7: buses[index - 1].showSummary(); break;
-            }
-        } 
-        else if (choice == 1) installBus();
-        else if (choice == 2) showAllBuses();
-        else if (choice == 8) searchBuses();
-        else if (choice == 9) { saveData(); cout << "Exiting...\n"; }
-        else cout << "Invalid choice!\n";
+        string bus_no;
+        Bus* bus;
 
-    } while (choice != 9);
+        switch (choice) {
+            case 1:
+                installBus();
+                break;
+            case 2:
+                if (buses.empty()) cout << "No buses available.\n";
+                for (auto &b : buses) b.showBusDetails();
+                break;
+            case 3:
+                cin.ignore();
+                cout << "Enter bus number: "; getline(cin, bus_no);
+                bus = findBusByNumber(bus_no);
+                if (bus) { bus->reserveSeat(); saveAllBuses(); }
+                else cout << "Bus not found!\n";
+                break;
+            case 4:
+                cin.ignore();
+                cout << "Enter bus number: "; getline(cin, bus_no);
+                bus = findBusByNumber(bus_no);
+                if (bus) { bus->cancelSeat(); saveAllBuses(); }
+                else cout << "Bus not found!\n";
+                break;
+            case 5:
+                cin.ignore();
+                cout << "Enter bus number to search: "; getline(cin, bus_no);
+                bus = findBusByNumber(bus_no);
+                if (bus) bus->showBusDetails();
+                else cout << "Bus not found!\n";
+                break;
+            case 6:
+                cin.ignore();
+                cout << "Enter bus number: "; getline(cin, bus_no);
+                bus = findBusByNumber(bus_no);
+                if (bus) bus->showSeats();
+                else cout << "Bus not found!\n";
+                break;
+            case 7:
+                cin.ignore();
+                cout << "Enter bus number: "; getline(cin, bus_no);
+                bus = findBusByNumber(bus_no);
+                if (bus) bus->listReservedSeats();
+                else cout << "Bus not found!\n";
+                break;
+            case 8:
+                cout << "Exiting...\n";
+                break;
+            default:
+                cout << "Invalid choice!\n";
+        }
+    } while (choice != 8);
 
     return 0;
 }
