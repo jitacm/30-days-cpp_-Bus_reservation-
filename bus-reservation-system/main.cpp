@@ -28,12 +28,12 @@ public:
                 seats[i][j] = "Empty";
     }
 
-    void showBusDetails() const { // Corrected: added const
+    void showBusDetails() const {
         cout << "Bus No: " << bus_no << "\nDriver: " << driver << "\nFrom: " << from << "\nTo: " << to;
         cout << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
     }
 
-    void showSeats() const { // Corrected: added const
+    void showSeats() const {
         cout << "\nSeat Arrangement for Bus No " << bus_no << ":" << endl;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
@@ -108,12 +108,29 @@ public:
             cout << "Passenger not found.\n";
     }
 
-    void showSummary() const { // Corrected: added const
+    void showSummary() const {
         int empty = 0, booked = 0;
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] == "Empty" ? empty++ : booked++;
         cout << "Total Booked: " << booked << ", Empty: " << empty << endl;
+    }
+    
+    // New Feature: Display the Passenger List for a Bus
+    void showPassengerList() const {
+        cout << "\nPassenger List for Bus No " << bus_no << ":\n";
+        bool has_passengers = false;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (seats[i][j] != "Empty") {
+                    cout << "Seat " << (i * 4 + j + 1) << ": " << seats[i][j] << endl;
+                    has_passengers = true;
+                }
+            }
+        }
+        if (!has_passengers) {
+            cout << "No seats are currently booked on this bus.\n";
+        }
     }
 };
 
@@ -165,6 +182,25 @@ void searchByRoute() {
     }
 }
 
+// New Feature: Add a Bus Search by Driver Name
+void searchByDriver() {
+    string driver_name;
+    cout << "\nEnter driver name to search: ";
+    cin >> driver_name;
+
+    bool found = false;
+    cout << "\n--- Buses driven by " << driver_name << " ---\n";
+    for (const auto& bus : buses) {
+        if (bus.driver == driver_name) {
+            bus.showBusDetails();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "No buses found for this driver.\n";
+    }
+}
+
 
 int main() {
     string username, password;
@@ -200,7 +236,9 @@ int main() {
                         cout << "1. Install New Bus" << endl;
                         cout << "2. Search for Passenger" << endl;
                         cout << "3. Show Booking Summary" << endl;
-                        cout << "4. Logout" << endl;
+                        cout << "4. Show Passenger List" << endl; // New menu option
+                        cout << "5. Search Bus by Driver" << endl; // New menu option
+                        cout << "6. Logout" << endl;
                         cout << "Enter choice: ";
                         cin >> adminChoice;
 
@@ -213,26 +251,51 @@ int main() {
 
                         switch (adminChoice) {
                             case 1: installBus(); break;
-                            case 2: 
+                            case 2:
                                 if (buses.empty()) {
                                     cout << "No buses available.\n";
                                 } else {
-                                    // Assuming a bus needs to be selected for this operation
+                                    // This part is a bit vague in your original code.
+                                    // A more robust implementation would let the admin choose a bus
+                                    // to search for a passenger on. For now, it searches on the first bus.
                                     buses[0].searchPassenger();
                                 }
                                 break;
-                            case 3: 
+                            case 3:
                                 if (buses.empty()) {
                                     cout << "No buses available.\n";
                                 } else {
-                                    // Assuming a bus needs to be selected for this operation
+                                    // Same as above, assumes the first bus.
                                     buses[0].showSummary();
                                 }
                                 break;
-                            case 4: cout << "Logging out...\n"; break;
+                            case 4: // New feature implementation
+                                if (buses.empty()) {
+                                    cout << "No buses available.\n";
+                                } else {
+                                    string bus_number_input;
+                                    cout << "Enter bus number to view passenger list: ";
+                                    cin >> bus_number_input;
+                                    bool found_bus = false;
+                                    for (auto& bus : buses) {
+                                        if (bus.bus_no == bus_number_input) {
+                                            bus.showPassengerList();
+                                            found_bus = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found_bus) {
+                                        cout << "Bus not found.\n";
+                                    }
+                                }
+                                break;
+                            case 5: // New feature implementation
+                                searchByDriver();
+                                break;
+                            case 6: cout << "Logging out...\n"; break;
                             default: cout << "Invalid choice!\n";
                         }
-                    } while (adminChoice != 4);
+                    } while (adminChoice != 6);
                 } else {
                     cout << "Incorrect password.\n";
                 }
