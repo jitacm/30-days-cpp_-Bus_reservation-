@@ -28,13 +28,13 @@ public:
                 seats[i][j] = "Empty";
     }
 
-    void showBusDetails() {
+    void showBusDetails() const { // Corrected: added const
         cout << "Bus No: " << bus_no << "\nDriver: " << driver << "\nFrom: " << from << "\nTo: " << to;
         cout << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
     }
 
-    void showSeats() {
-        cout << "\nSeat Arrangement for Bus No " << bus_no << ":\n";
+    void showSeats() const { // Corrected: added const
+        cout << "\nSeat Arrangement for Bus No " << bus_no << ":" << endl;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
                 int seat_no = i * 4 + j + 1;
@@ -108,7 +108,7 @@ public:
             cout << "Passenger not found.\n";
     }
 
-    void showSummary() {
+    void showSummary() const { // Corrected: added const
         int empty = 0, booked = 0;
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
@@ -144,6 +144,27 @@ void showAllBuses() {
         buses[i].showBusDetails();
     }
 }
+
+void searchByRoute() {
+    string from_location, to_location;
+    cout << "\nEnter starting location: ";
+    cin >> from_location;
+    cout << "Enter destination: ";
+    cin >> to_location;
+
+    bool found = false;
+    cout << "\n--- Available Buses on this Route ---\n";
+    for (const auto& bus : buses) {
+        if (bus.from == from_location && bus.to == to_location) {
+            bus.showBusDetails();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "No buses found for this route.\n";
+    }
+}
+
 
 int main() {
     string username, password;
@@ -227,7 +248,8 @@ int main() {
                     cout << "2. Reserve a Seat" << endl;
                     cout << "3. Cancel a Reservation" << endl;
                     cout << "4. Show Seat Arrangement" << endl;
-                    cout << "5. Logout" << endl;
+                    cout << "5. Search Bus by Route" << endl;
+                    cout << "6. Logout" << endl;
                     cout << "Enter choice: ";
                     cin >> customerChoice;
 
@@ -262,10 +284,11 @@ int main() {
                                 case 4: buses[index - 1].showSeats(); break;
                             }
                             break;
-                        case 5: cout << "Logging out...\n"; break;
+                        case 5: searchByRoute(); break;
+                        case 6: cout << "Logging out...\n"; break;
                         default: cout << "Invalid choice!\n";
                     }
-                } while (customerChoice != 5);
+                } while (customerChoice != 6);
                 break;
             
             case 3:
