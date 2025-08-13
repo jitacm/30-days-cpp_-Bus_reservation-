@@ -2,6 +2,9 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <limits>
+#include <iomanip>
+
 using namespace std;
 
 class Bus {
@@ -12,7 +15,7 @@ class Bus {
     string departure;
     string from;
     string to;
-    string seats[8][4]; // 32 seats
+    string seats[8][4];
 
     Bus() {}
 
@@ -69,17 +72,22 @@ class Bus {
         int seat_no;
         cout << "Enter seat number (1-32): ";
         cin >> seat_no;
-        if (seat_no < 1 || seat_no > 32) {
+        
+        if (cin.fail() || seat_no < 1 || seat_no > 32) {
             cout << "Invalid seat number!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return;
         }
+        
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
+
         if (seats[row][col] != "Empty") {
             cout << "Seat already booked!" << endl;
         } else {
             string name;
-            cin.ignore();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             cout << "Enter passenger name: ";
             getline(cin, name);
             if (name.empty()) {
@@ -95,12 +103,17 @@ class Bus {
         int seat_no;
         cout << "Enter seat number to cancel (1-32): ";
         cin >> seat_no;
-        if (seat_no < 1 || seat_no > 32) {
+
+        if (cin.fail() || seat_no < 1 || seat_no > 32) {
             cout << "Invalid seat number!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return;
         }
+        
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
+
         if (seats[row][col] == "Empty") {
             cout << "That seat is already empty." << endl;
         } else {
@@ -129,7 +142,6 @@ class Bus {
     }
 };
 
-// Global buses list
 vector<Bus> buses;
 
 void saveAllBuses() {
@@ -145,7 +157,7 @@ void loadAllBuses() {
     if (!in) return;
     int n;
     in >> n;
-    in.ignore();
+    in.ignore(numeric_limits<streamsize>::max(), '\n');
     for (int i = 0; i < n; ++i) {
         Bus b;
         b.loadFromFile(in);
@@ -164,11 +176,11 @@ Bus* findBusByNumber(const string& number) {
 
 void installBus() {
     string bno, drv, arr, dep, from, to;
-    cin.ignore();
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cout << "\nEnter bus number: ";
     getline(cin, bno);
     if (findBusByNumber(bno)) {
-        cout << "❌ Bus with this number already exists!\n";
+        cout << "Bus with this number already exists!\n";
         return;
     }
     cout << "Enter driver name: "; getline(cin, drv);
@@ -178,7 +190,7 @@ void installBus() {
     cout << "To: "; getline(cin, to);
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
-    cout << "✅ Bus Installed Successfully!\n";
+    cout << "Bus Installed Successfully!\n";
     saveAllBuses();
 }
 
@@ -198,6 +210,13 @@ int main() {
         cout << "Enter choice: ";
         cin >> choice;
 
+        if (cin.fail()) {
+            cout << "Invalid input. Please enter a number.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
+        }
+
         string bus_no;
         Bus* bus;
 
@@ -210,35 +229,35 @@ int main() {
                 for (auto &b : buses) b.showBusDetails();
                 break;
             case 3:
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
                 if (bus) { bus->reserveSeat(); saveAllBuses(); }
                 else cout << "Bus not found!\n";
                 break;
             case 4:
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
                 if (bus) { bus->cancelSeat(); saveAllBuses(); }
                 else cout << "Bus not found!\n";
                 break;
             case 5:
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number to search: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
                 if (bus) bus->showBusDetails();
                 else cout << "Bus not found!\n";
                 break;
             case 6:
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
                 if (bus) bus->showSeats();
                 else cout << "Bus not found!\n";
                 break;
             case 7:
-                cin.ignore();
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
                 if (bus) bus->listReservedSeats();
