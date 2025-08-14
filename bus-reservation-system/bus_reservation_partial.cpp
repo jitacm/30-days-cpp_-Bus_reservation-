@@ -122,7 +122,6 @@ class Bus {
         }
     }
 
-    // New methods for data persistence
     void saveToFile(ofstream &out) {
         out << bus_no << '\n' << driver << '\n' << arrival << '\n' << departure << '\n' << from << '\n' << to << '\n';
         for (int i = 0; i < 8; ++i)
@@ -145,7 +144,6 @@ class Bus {
 
 vector<Bus> buses;
 
-// Functions for saving and loading all buses
 void saveAllBuses() {
     ofstream out("buses.txt");
     out << buses.size() << '\n';
@@ -197,7 +195,7 @@ void installBus() {
 }
 
 int main() {
-    loadAllBuses(); // Load data on startup
+    loadAllBuses();
     int choice;
     do {
         cout << "\n===== Bus Reservation System =====" << endl;
@@ -234,14 +232,14 @@ int main() {
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
-                if (bus) { bus->reserveSeat(); saveAllBuses(); } // Save after reservation
+                if (bus) { bus->reserveSeat(); saveAllBuses(); }
                 else cout << "Bus not found!\n";
                 break;
             case 4:
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 cout << "Enter bus number: "; getline(cin, bus_no);
                 bus = findBusByNumber(bus_no);
-                if (bus) { bus->cancelSeat(); saveAllBuses(); } // Save after cancellation
+                if (bus) { bus->cancelSeat(); saveAllBuses(); }
                 else cout << "Bus not found!\n";
                 break;
             case 5:
