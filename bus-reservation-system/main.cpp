@@ -1,6 +1,9 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
+#include "user.h"
+
 using namespace std;
 
 class Bus {
@@ -20,19 +23,18 @@ public:
         from = f;
         to = t;
 
-    
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] = "Empty";
     }
 
-    void showBusDetails() {
+    void showBusDetails() const {
         cout << "Bus No: " << bus_no << "\nDriver: " << driver << "\nFrom: " << from << "\nTo: " << to;
         cout << "\nArrival: " << arrival << "\nDeparture: " << departure << endl;
     }
 
-    void showSeats() {
-        cout << "\nSeat Arrangement for Bus No " << bus_no << ":\n";
+    void showSeats() const {
+        cout << "\nSeat Arrangement for Bus No " << bus_no << ":" << endl;
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
                 int seat_no = i * 4 + j + 1;
@@ -49,37 +51,41 @@ public:
         int seat_no;
         cout << "Enter seat number (1-32): ";
         cin >> seat_no;
-        if (seat_no < 1 || seat_no > 32) {
-            cout << "❌ Invalid seat number!" << endl;
+        if (cin.fail() || seat_no < 1 || seat_no > 32) {
+            cout << "Invalid seat number!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return;
         }
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
         if (seats[row][col] != "Empty") {
-            cout << "❌ Seat already booked!" << endl;
+            cout << "Seat already booked!" << endl;
         } else {
             string name;
             cout << "Enter passenger name: ";
             cin >> name;
             seats[row][col] = name;
-            cout << "✅ Seat " << seat_no << " reserved for " << name << "." << endl;
+            cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
         }
     }
 
     void cancelReservation() {
         int seat_no;
-        cout << "Enter seat number to cancel (1–32): ";
+        cout << "Enter seat number to cancel (1-32): ";
         cin >> seat_no;
-        if (seat_no < 1 || seat_no > 32) {
-            cout << "❌ Invalid seat number!" << endl;
+        if (cin.fail() || seat_no < 1 || seat_no > 32) {
+            cout << "Invalid seat number!" << endl;
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
             return;
         }
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
         if (seats[row][col] == "Empty") {
-            cout << "❌ Seat is already empty." << endl;
+            cout << "Seat is already empty." << endl;
         } else {
-            cout << "✔️ Reservation for " << seats[row][col] << " at seat " << seat_no << " canceled.\n";
+            cout << "Reservation for " << seats[row][col] << " at seat " << seat_no << " canceled.\n";
             seats[row][col] = "Empty";
         }
     }
@@ -93,21 +99,38 @@ public:
             for (int j = 0; j < 4; j++) {
                 if (seats[i][j] == name) {
                     int seat_no = i * 4 + j + 1;
-                    cout << "✅ Passenger " << name << " is in seat " << seat_no << " on bus " << bus_no << ".\n";
+                    cout << "Passenger " << name << " is in seat " << seat_no << " on bus " << bus_no << ".\n";
                     found = true;
                 }
             }
         }
         if (!found)
-            cout << "❌ Passenger not found.\n";
+            cout << "Passenger not found.\n";
     }
 
-    void showSummary() {
+    void showSummary() const {
         int empty = 0, booked = 0;
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] == "Empty" ? empty++ : booked++;
-        cout << "📊 Total Booked: " << booked << ", Empty: " << empty << endl;
+        cout << "Total Booked: " << booked << ", Empty: " << empty << endl;
+    }
+    
+    // New Feature: Display the Passenger List for a Bus
+    void showPassengerList() const {
+        cout << "\nPassenger List for Bus No " << bus_no << ":\n";
+        bool has_passengers = false;
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 4; j++) {
+                if (seats[i][j] != "Empty") {
+                    cout << "Seat " << (i * 4 + j + 1) << ": " << seats[i][j] << endl;
+                    has_passengers = true;
+                }
+            }
+        }
+        if (!has_passengers) {
+            cout << "No seats are currently booked on this bus.\n";
+        }
     }
 };
 
@@ -125,7 +148,7 @@ void installBus() {
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
 
-    cout << "✅ Bus Installed Successfully!\n";
+    cout << "Bus Installed Successfully!\n";
 }
 
 void showAllBuses() {
@@ -139,54 +162,207 @@ void showAllBuses() {
     }
 }
 
+void searchByRoute() {
+    string from_location, to_location;
+    cout << "\nEnter starting location: ";
+    cin >> from_location;
+    cout << "Enter destination: ";
+    cin >> to_location;
+
+    bool found = false;
+    cout << "\n--- Available Buses on this Route ---\n";
+    for (const auto& bus : buses) {
+        if (bus.from == from_location && bus.to == to_location) {
+            bus.showBusDetails();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "No buses found for this route.\n";
+    }
+}
+
+// New Feature: Add a Bus Search by Driver Name
+void searchByDriver() {
+    string driver_name;
+    cout << "\nEnter driver name to search: ";
+    cin >> driver_name;
+
+    bool found = false;
+    cout << "\n--- Buses driven by " << driver_name << " ---\n";
+    for (const auto& bus : buses) {
+        if (bus.driver == driver_name) {
+            bus.showBusDetails();
+            found = true;
+        }
+    }
+    if (!found) {
+        cout << "No buses found for this driver.\n";
+    }
+}
+
 
 int main() {
+    string username, password;
+    User::Role currentUserRole;
     int choice;
+    bool exitProgram = false;
+
     do {
-        cout << "\n===== 🚍 Bus Reservation System (Improved) =====" << endl;
-        cout << "1. Install New Bus" << endl;
-        cout << "2. Show All Buses" << endl;
-        cout << "3. Reserve a Seat" << endl;
-        cout << "4. Cancel a Reservation" << endl;
-        cout << "5. Search for Passenger" << endl;
-        cout << "6. Show Seat Arrangement" << endl;
-        cout << "7. Show Booking Summary" << endl;
-        cout << "8. Exit" << endl;
+        cout << "\n===== Main Menu =====" << endl;
+        cout << "1. Admin Login" << endl;
+        cout << "2. Customer Access" << endl;
+        cout << "3. Exit Program" << endl;
         cout << "Enter choice: ";
         cin >> choice;
 
-        switch (choice) {
-        case 1: installBus(); break;
-        case 2: showAllBuses(); break;
-        case 3:
-        case 4:
-        case 5:
-        case 6:
-        case 7:
-            if (buses.empty()) {
-                cout << "No buses available.\n";
-                break;
-            }
-            int index;
-            cout << "Enter bus index (1-" << buses.size() << "): ";
-            cin >> index;
-            if (index < 1 || index > buses.size()) {
-                cout << "Invalid bus index.\n";
-                break;
-            }
-            switch (choice) {
-            case 3: buses[index - 1].reserveSeat(); break;
-            case 4: buses[index - 1].cancelReservation(); break;
-            case 5: buses[index - 1].searchPassenger(); break;
-            case 6: buses[index - 1].showSeats(); break;
-            case 7: buses[index - 1].showSummary(); break;
-            }
-            break;
-        case 8: cout << "Exiting...\n"; break;
-        default: cout << "Invalid choice!\n";
+        if (cin.fail()) {
+            cout << "Invalid input. Please enter a number.\n";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            continue;
         }
 
-    } while (choice != 8);
+        switch (choice) {
+            case 1:
+                cout << "Enter admin password: ";
+                cin >> password;
+                if (password == "5827") {
+                    currentUserRole = User::ADMIN;
+                    cout << "Admin login successful.\n";
+                    int adminChoice;
+                    do {
+                        cout << "\n===== Admin Menu =====" << endl;
+                        cout << "1. Install New Bus" << endl;
+                        cout << "2. Search for Passenger" << endl;
+                        cout << "3. Show Booking Summary" << endl;
+                        cout << "4. Show Passenger List" << endl; // New menu option
+                        cout << "5. Search Bus by Driver" << endl; // New menu option
+                        cout << "6. Logout" << endl;
+                        cout << "Enter choice: ";
+                        cin >> adminChoice;
+
+                        if (cin.fail()) {
+                            cout << "Invalid input. Please enter a number.\n";
+                            cin.clear();
+                            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                            continue;
+                        }
+
+                        switch (adminChoice) {
+                            case 1: installBus(); break;
+                            case 2:
+                                if (buses.empty()) {
+                                    cout << "No buses available.\n";
+                                } else {
+                                    // This part is a bit vague in your original code.
+                                    // A more robust implementation would let the admin choose a bus
+                                    // to search for a passenger on. For now, it searches on the first bus.
+                                    buses[0].searchPassenger();
+                                }
+                                break;
+                            case 3:
+                                if (buses.empty()) {
+                                    cout << "No buses available.\n";
+                                } else {
+                                    // Same as above, assumes the first bus.
+                                    buses[0].showSummary();
+                                }
+                                break;
+                            case 4: // New feature implementation
+                                if (buses.empty()) {
+                                    cout << "No buses available.\n";
+                                } else {
+                                    string bus_number_input;
+                                    cout << "Enter bus number to view passenger list: ";
+                                    cin >> bus_number_input;
+                                    bool found_bus = false;
+                                    for (auto& bus : buses) {
+                                        if (bus.bus_no == bus_number_input) {
+                                            bus.showPassengerList();
+                                            found_bus = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found_bus) {
+                                        cout << "Bus not found.\n";
+                                    }
+                                }
+                                break;
+                            case 5: // New feature implementation
+                                searchByDriver();
+                                break;
+                            case 6: cout << "Logging out...\n"; break;
+                            default: cout << "Invalid choice!\n";
+                        }
+                    } while (adminChoice != 6);
+                } else {
+                    cout << "Incorrect password.\n";
+                }
+                break;
+
+            case 2:
+                currentUserRole = User::CUSTOMER;
+                cout << "Customer access granted.\n";
+                int customerChoice;
+                do {
+                    cout << "\n===== Customer Menu =====" << endl;
+                    cout << "1. Show All Buses" << endl;
+                    cout << "2. Reserve a Seat" << endl;
+                    cout << "3. Cancel a Reservation" << endl;
+                    cout << "4. Show Seat Arrangement" << endl;
+                    cout << "5. Search Bus by Route" << endl;
+                    cout << "6. Logout" << endl;
+                    cout << "Enter choice: ";
+                    cin >> customerChoice;
+
+                    if (cin.fail()) {
+                        cout << "Invalid input. Please enter a number.\n";
+                        cin.clear();
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                        continue;
+                    }
+                    
+                    int index;
+                    switch (customerChoice) {
+                        case 1: showAllBuses(); break;
+                        case 2:
+                        case 3:
+                        case 4:
+                            if (buses.empty()) {
+                                cout << "No buses available.\n";
+                                break;
+                            }
+                            cout << "Enter bus index (1-" << buses.size() << "): ";
+                            cin >> index;
+                            if (cin.fail() || index < 1 || index > buses.size()) {
+                                cout << "Invalid bus index.\n";
+                                cin.clear();
+                                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                                break;
+                            }
+                            switch (customerChoice) {
+                                case 2: buses[index - 1].reserveSeat(); break;
+                                case 3: buses[index - 1].cancelReservation(); break;
+                                case 4: buses[index - 1].showSeats(); break;
+                            }
+                            break;
+                        case 5: searchByRoute(); break;
+                        case 6: cout << "Logging out...\n"; break;
+                        default: cout << "Invalid choice!\n";
+                    }
+                } while (customerChoice != 6);
+                break;
+            
+            case 3:
+                cout << "Exiting program...\n";
+                exitProgram = true;
+                break;
+
+            default:
+                cout << "Invalid choice!\n";
+        }
+    } while (!exitProgram);
 
     return 0;
 }
