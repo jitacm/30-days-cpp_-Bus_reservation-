@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 #include <limits>
-#include <iomanip> // Add this header for I/O manipulators
+#include <iomanip>
 #include "user.h"
 
 // Define constants for magic numbers
@@ -224,6 +224,7 @@ void showAllBuses() {
     }
 }
 
+// New feature implementation: Bus Availability Filter for Customers
 void searchByRoute() {
     std::cout << "\n===== Search Buses by Route =====\n";
     std::string from_location = getLineFromUser("Enter starting location: ");
