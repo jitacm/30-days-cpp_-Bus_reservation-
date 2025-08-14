@@ -2,50 +2,64 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <limits>
-#include <iomanip>
-
+#include <sstream>
 using namespace std;
 
+// ---- Forward declarations (needed because Bus methods call these) ----
+void saveToFile();
+void loadFromFile();
+
+// ---- Helper: check file existence (works everywhere, no <filesystem>) ----
+bool fileExists(const string& filename) {
+    ifstream f(filename);
+    return f.good();
+}
+
+// ---- Helper: split a string by a delimiter ----
+vector<string> split(const string& s, char delim) {
+    vector<string> out;
+    string item;
+    stringstream ss(s);
+    while (getline(ss, item, delim)) out.push_back(item);
+    return out;
+}
+
+// =========================== Bus class ===========================
 class Bus {
-    public:
+public:
     string bus_no;
     string driver;
     string arrival;
     string departure;
     string from;
     string to;
-    string seats[8][4];
+    string seats[8][4];         // 32 seats
+    double fare_per_seat;       // NEW
+    string status;              // NEW
 
-    Bus() {}
-
-    Bus(string bno, string drv, string arr, string dep, string f, string t) {
-        bus_no = bno;
-        driver = drv;
-        arrival = arr;
-        departure = dep;
-        from = f;
-        to = t;
-
+    Bus(string bno, string drv, string arr, string dep, string f, string t)
+        : bus_no(bno), driver(drv), arrival(arr), departure(dep), from(f), to(t),
+          fare_per_seat(0.0), status("On Time") {
         for (int i = 0; i < 8; i++)
             for (int j = 0; j < 4; j++)
                 seats[i][j] = "Empty";
     }
 
     void showBusDetails() {
-        cout << "\nBus Number: " << bus_no << endl;
-        cout << "Driver: " << driver << endl;
-        cout << "From: " << from << "  To: " << to << endl;
-        cout << "Arrival: " << arrival << "  Departure: " << departure << endl;
+        cout << "Bus No: " << bus_no
+             << "\nDriver: " << driver
+             << "\nFrom: " << from
+             << "\nTo: " << to
+             << "\nArrival: " << arrival
+             << "\nDeparture: " << departure
+             << "\nFare per Seat: " << fare_per_seat
+             << "\nStatus: " << status << endl;
     }
 
     void showSeats() {
-        cout << "\nSeat Arrangement for Bus No " << bus_no << ":" << endl;
+        cout << "\nSeat Arrangement for Bus No " << bus_no << ":\n";
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 4; j++) {
-                int seat_num = i * 4 + j + 1;
-                cout.width(4);
-                cout << "[" << seat_num << "]";
                 cout.width(12);
                 cout << seats[i][j];
             }
@@ -53,49 +67,27 @@ class Bus {
         }
     }
 
-    void listReservedSeats() {
-        cout << "\nReserved Seats in Bus " << bus_no << ":\n";
-        bool found = false;
-        for (int i = 0; i < 8; ++i) {
-            for (int j = 0; j < 4; ++j) {
-                if (seats[i][j] != "Empty") {
-                    int seat_num = i * 4 + j + 1;
-                    cout << "Seat " << seat_num << ": " << seats[i][j] << endl;
-                    found = true;
-                }
-            }
-        }
-        if (!found) cout << "No seats reserved.\n";
-    }
-
     void reserveSeat() {
         int seat_no;
         cout << "Enter seat number (1-32): ";
         cin >> seat_no;
-        
-        if (cin.fail() || seat_no < 1 || seat_no > 32) {
-            cout << "Invalid seat number!" << endl;
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        if (seat_no < 1 || seat_no > 32) {
+            cout << "Invalid seat number!\n";
             return;
         }
-        
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
-
         if (seats[row][col] != "Empty") {
-            cout << "Seat already booked!" << endl;
+            cout << "Seat already booked!\n";
         } else {
             string name;
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cin.ignore();
             cout << "Enter passenger name: ";
             getline(cin, name);
-            if (name.empty()) {
-                cout << "Invalid name." << endl;
-                return;
-            }
             seats[row][col] = name;
-            cout << "Seat " << seat_no << " reserved for " << name << "." << endl;
+            cout << "Seat " << seat_no << " reserved for " << name
+                 << ". Fare: " << fare_per_seat << "\n";
+            saveToFile();
         }
     }
 
@@ -103,173 +95,256 @@ class Bus {
         int seat_no;
         cout << "Enter seat number to cancel (1-32): ";
         cin >> seat_no;
-
-        if (cin.fail() || seat_no < 1 || seat_no > 32) {
-            cout << "Invalid seat number!" << endl;
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        if (seat_no < 1 || seat_no > 32) {
+            cout << "Invalid seat number!\n";
             return;
         }
-        
         int row = (seat_no - 1) / 4;
         int col = (seat_no - 1) % 4;
-
         if (seats[row][col] == "Empty") {
-            cout << "That seat is already empty." << endl;
+            cout << "Seat is already empty!\n";
         } else {
-            cout << "Reservation for seat " << seat_no << " (" << seats[row][col] << ") cancelled." << endl;
+            cout << "Reservation cancelled for Seat " << seat_no << ".\n";
             seats[row][col] = "Empty";
+            saveToFile();
         }
-    }
-
-    void saveToFile(ofstream &out) {
-        out << bus_no << '\n' << driver << '\n' << arrival << '\n' << departure << '\n' << from << '\n' << to << '\n';
-        for (int i = 0; i < 8; ++i)
-            for (int j = 0; j < 4; ++j)
-                out << seats[i][j] << '\n';
-    }
-
-    void loadFromFile(ifstream &in) {
-        getline(in, bus_no);
-        getline(in, driver);
-        getline(in, arrival);
-        getline(in, departure);
-        getline(in, from);
-        getline(in, to);
-        for (int i = 0; i < 8; ++i)
-            for (int j = 0; j < 4; ++j)
-                getline(in, seats[i][j]);
     }
 };
 
+// =========================== Globals ===========================
 vector<Bus> buses;
 
-void saveAllBuses() {
-    ofstream out("buses.txt");
-    out << buses.size() << '\n';
-    for (auto &bus : buses)
-        bus.saveToFile(out);
-    out.close();
-}
-
-void loadAllBuses() {
-    ifstream in("buses.txt");
-    if (!in) return;
-    int n;
-    in >> n;
-    in.ignore(numeric_limits<streamsize>::max(), '\n');
-    for (int i = 0; i < n; ++i) {
-        Bus b;
-        b.loadFromFile(in);
-        buses.push_back(b);
-    }
-    in.close();
-}
-
-Bus* findBusByNumber(const string& number) {
-    for (auto& bus : buses) {
-        if (bus.bus_no == number)
-            return &bus;
-    }
-    return nullptr;
-}
-
+// =========================== Core Actions ===========================
 void installBus() {
     string bno, drv, arr, dep, from, to;
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
-    cout << "\nEnter bus number: ";
+    cin.ignore(); // flush buffer before getline
+
+    cout << "Enter bus number: ";
     getline(cin, bno);
-    if (findBusByNumber(bno)) {
-        cout << "Bus with this number already exists!\n";
-        return;
-    }
-    cout << "Enter driver name: "; getline(cin, drv);
-    cout << "Enter arrival time: "; getline(cin, arr);
-    cout << "Enter departure time: "; getline(cin, dep);
-    cout << "From: "; getline(cin, from);
-    cout << "To: "; getline(cin, to);
+    cout << "Enter driver name: ";
+    getline(cin, drv);
+    cout << "Enter arrival time: ";
+    getline(cin, arr);
+    cout << "Enter departure time: ";
+    getline(cin, dep);
+    cout << "From: ";
+    getline(cin, from);
+    cout << "To: ";
+    getline(cin, to);
+
     Bus b(bno, drv, arr, dep, from, to);
     buses.push_back(b);
-    cout << "Bus Installed Successfully!\n";
-    saveAllBuses();
+    saveToFile();
+
+    cout << "✅ Bus Installed Successfully!\n";
 }
 
+void showAllBuses() {
+    if (buses.empty()) {
+        cout << "No buses available.\n";
+        return;
+    }
+    for (size_t i = 0; i < buses.size(); ++i) {
+        cout << "\nBus " << i + 1 << ":\n";
+        buses[i].showBusDetails();
+        buses[i].showSeats();
+    }
+}
+
+void searchBuses() {
+    if (buses.empty()) {
+        cout << "No buses available to search.\n";
+        return;
+    }
+    cout << "\nSearch by:\n";
+    cout << "1. Bus Number\n2. Source\n3. Destination\nEnter option: ";
+    int opt;
+    cin >> opt;
+    string query;
+    bool found = false;
+    switch (opt) {
+        case 1:
+            cout << "Enter bus number: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i)
+                if (buses[i].bus_no == query) { cout << "\nBus " << i+1 << ":\n"; buses[i].showBusDetails(); found = true; }
+            break;
+        case 2:
+            cout << "Enter source: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i)
+                if (buses[i].from == query) { cout << "\nBus " << i+1 << ":\n"; buses[i].showBusDetails(); found = true; }
+            break;
+        case 3:
+            cout << "Enter destination: ";
+            cin >> query;
+            for (size_t i = 0; i < buses.size(); ++i)
+                if (buses[i].to == query) { cout << "\nBus " << i+1 << ":\n"; buses[i].showBusDetails(); found = true; }
+            break;
+        default:
+            cout << "Invalid search option!\n";
+            return;
+    }
+    if (!found) cout << "No matching buses found.\n";
+}
+
+// =========================== Admin Features (Level-3) ===========================
+bool adminLogin() {
+    string pass;
+    cout << "Enter admin password: ";
+    cin >> pass;
+    return pass == "admin123";
+}
+
+void setBusFare() {
+    if (!adminLogin()) { cout << "❌ Wrong password!\n"; return; }
+    if (buses.empty()) { cout << "No buses available.\n"; return; }
+
+    int index;
+    cout << "Enter bus index (1-" << buses.size() << "): ";
+    cin >> index;
+    if (index < 1 || (size_t)index > buses.size()) { cout << "Invalid bus index.\n"; return; }
+
+    double fare;
+    cout << "Enter fare per seat: ";
+    cin >> fare;
+    buses[index - 1].fare_per_seat = fare;
+    cout << "✅ Fare updated!\n";
+    saveToFile();
+}
+
+void setBusStatus() {
+    if (!adminLogin()) { cout << "❌ Wrong password!\n"; return; }
+    if (buses.empty()) { cout << "No buses available.\n"; return; }
+
+    int index;
+    cout << "Enter bus index (1-" << buses.size() << "): ";
+    cin >> index;
+    if (index < 1 || (size_t)index > buses.size()) { cout << "Invalid bus index.\n"; return; }
+
+    cout << "Enter status (On Time / Delayed / Cancelled): ";
+    string newStatus;
+    cin.ignore();
+    getline(cin, newStatus);
+    buses[index - 1].status = newStatus;
+    cout << "✅ Status updated!\n";
+    saveToFile();
+}
+
+// =========================== Persistence ===========================
+// Format per bus in buses.txt:
+// Header line with 8 fields separated by '|':
+// bus_no|driver|arrival|departure|from|to|fare_per_seat|status
+// Followed by 32 lines: each seat value (one per line)
+void saveToFile() {
+    ofstream fout("buses.txt");
+    if (!fout.is_open()) {
+        cout << "❌ Could not open buses.txt for writing.\n";
+        return;
+    }
+    for (const auto& bus : buses) {
+        fout << bus.bus_no << "|" << bus.driver << "|" << bus.arrival << "|"
+             << bus.departure << "|" << bus.from << "|" << bus.to << "|"
+             << bus.fare_per_seat << "|" << bus.status << "\n";
+        for (int i = 0; i < 8; i++)
+            for (int j = 0; j < 4; j++)
+                fout << bus.seats[i][j] << "\n";
+    }
+    fout.close();
+}
+
+void loadFromFile() {
+    if (!fileExists("buses.txt")) return;
+
+    ifstream fin("buses.txt");
+    if (!fin.is_open()) return;
+
+    buses.clear();
+
+    string header;
+    while (getline(fin, header)) {
+        if (header.empty()) continue;
+        auto parts = split(header, '|');
+
+        // Backward compatibility: old files had 6 parts (no fare/status)
+        if (parts.size() < 6) break;
+
+        string bno   = parts[0];
+        string drv   = parts[1];
+        string arr   = parts[2];
+        string dep   = parts[3];
+        string from  = parts[4];
+        string to    = parts[5];
+
+        Bus b(bno, drv, arr, dep, from, to);
+
+        if (parts.size() >= 7) {
+            try { b.fare_per_seat = stod(parts[6]); }
+            catch(...) { b.fare_per_seat = 0.0; }
+        }
+        if (parts.size() >= 8) b.status = parts[7];
+
+        // Read 32 seat lines (if file ends early, fill "Empty")
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 4; j++) {
+                string seatLine;
+                if (!getline(fin, seatLine)) seatLine = "Empty";
+                b.seats[i][j] = seatLine.empty() ? "Empty" : seatLine;
+            }
+        }
+        buses.push_back(b);
+    }
+    fin.close();
+}
+
+// =========================== Main ===========================
 int main() {
-    loadAllBuses();
+    loadFromFile(); // Load data when app starts
     int choice;
     do {
-        cout << "\n===== Bus Reservation System =====" << endl;
-        cout << "1. Install New Bus" << endl;
-        cout << "2. Show All Buses" << endl;
-        cout << "3. Reserve a Seat" << endl;
-        cout << "4. Cancel a Reservation" << endl;
-        cout << "5. Search Bus by Number" << endl;
-        cout << "6. View Seat Arrangement" << endl;
-        cout << "7. List Reserved Seats" << endl;
-        cout << "8. Exit" << endl;
+        cout << "\n===== Bus Reservation System =====\n";
+        cout << "1. Install New Bus\n";
+        cout << "2. Show All Buses\n";
+        cout << "3. Reserve a Seat\n";
+        cout << "4. Cancel a Reservation\n";
+        cout << "5. Search for Buses\n";
+        cout << "6. Exit\n";
+        cout << "7. Set Bus Fare (Admin)\n";
+        cout << "8. Set Bus Status (Admin)\n";
         cout << "Enter choice: ";
         cin >> choice;
 
-        if (cin.fail()) {
-            cout << "Invalid input. Please enter a number.\n";
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-            continue;
-        }
-
-        string bus_no;
-        Bus* bus;
-
         switch (choice) {
-            case 1:
-                installBus();
-                break;
-            case 2:
-                if (buses.empty()) cout << "No buses available.\n";
-                for (auto &b : buses) b.showBusDetails();
-                break;
+            case 1: installBus(); break;
+            case 2: showAllBuses(); break;
             case 3:
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter bus number: "; getline(cin, bus_no);
-                bus = findBusByNumber(bus_no);
-                if (bus) { bus->reserveSeat(); saveAllBuses(); }
-                else cout << "Bus not found!\n";
+                if (!buses.empty()) {
+                    int index;
+                    cout << "Enter bus index (1-" << buses.size() << "): ";
+                    cin >> index;
+                    if (index >= 1 && (size_t)index <= buses.size())
+                        buses[index-1].reserveSeat();
+                    else
+                        cout << "Invalid bus index.\n";
+                } else cout << "No buses to reserve.\n";
                 break;
             case 4:
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter bus number: "; getline(cin, bus_no);
-                bus = findBusByNumber(bus_no);
-                if (bus) { bus->cancelSeat(); saveAllBuses(); }
-                else cout << "Bus not found!\n";
+                if (!buses.empty()) {
+                    int index;
+                    cout << "Enter bus index (1-" << buses.size() << "): ";
+                    cin >> index;
+                    if (index >= 1 && (size_t)index <= buses.size())
+                        buses[index-1].cancelSeat();
+                    else
+                        cout << "Invalid bus index.\n";
+                } else cout << "No buses to cancel reservation.\n";
                 break;
-            case 5:
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter bus number to search: "; getline(cin, bus_no);
-                bus = findBusByNumber(bus_no);
-                if (bus) bus->showBusDetails();
-                else cout << "Bus not found!\n";
-                break;
-            case 6:
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter bus number: "; getline(cin, bus_no);
-                bus = findBusByNumber(bus_no);
-                if (bus) bus->showSeats();
-                else cout << "Bus not found!\n";
-                break;
-            case 7:
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                cout << "Enter bus number: "; getline(cin, bus_no);
-                bus = findBusByNumber(bus_no);
-                if (bus) bus->listReservedSeats();
-                else cout << "Bus not found!\n";
-                break;
-            case 8:
-                cout << "Exiting...\n";
-                break;
-            default:
-                cout << "Invalid choice!\n";
+            case 5: searchBuses(); break;
+            case 7: setBusFare(); break;
+            case 8: setBusStatus(); break;
+            case 6: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice!\n";
         }
-    } while (choice != 8);
-
+    } while (choice != 6);
     return 0;
 }
